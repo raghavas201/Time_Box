@@ -1,12 +1,10 @@
 package com.example.timebox.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.otpapp.analytics.AnalyticsLogger
-import com.example.otpapp.data.OtpManager
+import com.example.timebox.analytics.AnalyticsLogger
+import com.example.timebox.data.OtpManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 class AuthViewModel : ViewModel() {
 
@@ -16,8 +14,8 @@ class AuthViewModel : ViewModel() {
     val state: StateFlow<AuthState> = _state
 
     fun sendOtp(email: String) {
-        otpManager.generateOtp(email)
-        AnalyticsLogger.logOtpGenerated(email)
+        val otp = otpManager.generateOtp(email)
+        AnalyticsLogger.logOtpGenerated(email, otp)
         _state.value = AuthState.Otp(email)
     }
 
@@ -26,7 +24,10 @@ class AuthViewModel : ViewModel() {
 
         if (isValid) {
             AnalyticsLogger.logOtpSuccess(email)
-            _state.value = AuthState.Session(email, System.currentTimeMillis())
+            _state.value = AuthState.Session(
+                email = email,
+                startTime = System.currentTimeMillis()
+            )
         } else {
             AnalyticsLogger.logOtpFailure(email, reason)
         }

@@ -4,44 +4,55 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.example.timebox.screens.LoginScreen
+import com.example.timebox.screens.OtpScreen
+import com.example.timebox.screens.SessionScreen
 import com.example.timebox.ui.theme.TimeBoxTheme
+import com.example.timebox.viewmodel.AuthState
+import com.example.timebox.viewmodel.AuthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             TimeBoxTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+                val viewModel: AuthViewModel = viewModel()
+                val state = viewModel.state.collectAsState().value
+
+                when (state) {
+
+                    is AuthState.Login -> {
+                        LoginScreen { email ->
+                            viewModel.sendOtp(email)
+                        }
+                    }
+
+                    is AuthState.Otp -> {
+                        OtpScreen(
+                            email = state.email,
+                            onVerify = { otp ->
+                                viewModel.verifyOtp(state.email, otp)
+                            }
+                        )
+                    }
+
+                    is AuthState.Session -> {
+                        SessionScreen(
+                            email = state.email,
+                            startTime = state.startTime,
+                            onLogout = {
+                                viewModel.logout(state.email)
+                            }
+                        )
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    TimeBoxTheme {
-        Greeting("Android")
     }
 }
