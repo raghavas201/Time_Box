@@ -30,17 +30,18 @@ class OtpManager {
 
         val data = otpStore[email] ?: return false to "No OTP generated"
 
-        // 1) Check expiry first
+        // If expired → invalidate old OTP
         if (System.currentTimeMillis() > data.expiryTime) {
-            return false to "OTP expired"
+            otpStore.remove(email)
+            return false to "OTP expired. Please resend."
         }
 
-        // 2) Check attempts
+        // If attempts exhausted → invalidate old OTP
         if (data.attemptsLeft <= 0) {
-            return false to "Max attempts exceeded"
+            otpStore.remove(email)
+            return false to "Max attempts exceeded. Please resend."
         }
 
-        // 3) Validate OTP
         return if (enteredOtp == data.otp) {
             true to "Success"
         } else {

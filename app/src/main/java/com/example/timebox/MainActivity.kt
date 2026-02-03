@@ -34,11 +34,17 @@ class MainActivity : ComponentActivity() {
                     }
 
                     is AuthState.Otp -> {
+                        val canResend = viewModel.canResend.collectAsState().value
+
                         OtpScreen(
                             email = state.email,
                             onVerify = { otp ->
                                 viewModel.verifyOtp(state.email, otp)
-                            }
+                            },
+                            onResend = {
+                                viewModel.resendOtp(state.email)
+                            },
+                            canResend = canResend
                         )
                     }
 
