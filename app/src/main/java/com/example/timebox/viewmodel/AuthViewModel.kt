@@ -20,9 +20,14 @@ class AuthViewModel : ViewModel() {
     private val _canResend = MutableStateFlow(true)
     val canResend: StateFlow<Boolean> = _canResend
 
+    // NEW: Control Verify button
+    private val _canVerify = MutableStateFlow(true)
+    val canVerify: StateFlow<Boolean> = _canVerify
+
     fun sendOtp(email: String) {
         val otp = otpManager.generateOtp(email)
         AnalyticsLogger.logOtpGenerated(email, otp)
+        _canVerify.value = true        // reset verify when new OTP sent
         startResendCooldown()
         _state.value = AuthState.Otp(email)
     }
@@ -30,6 +35,7 @@ class AuthViewModel : ViewModel() {
     fun resendOtp(email: String) {
         val otp = otpManager.generateOtp(email)
         AnalyticsLogger.logOtpGenerated(email, otp)
+        _canVerify.value = true        // reset verify on resend
         startResendCooldown()
     }
 
@@ -53,11 +59,18 @@ class AuthViewModel : ViewModel() {
             )
         } else {
             AnalyticsLogger.logOtpFailure(email, reason)
+
+            // 🚫 If attempts are exhausted → disable Verify button
+            if (reason.contains("Max attempts")) {
+                _canVerify.value = false
+            }
         }
     }
 
     fun logout(email: String) {
         otpManager.clearOtp(email)
+        _canResend.value = true
+        _canVerify.value = true
         AnalyticsLogger.logLogout(email)
         _state.value = AuthState.Login
     }

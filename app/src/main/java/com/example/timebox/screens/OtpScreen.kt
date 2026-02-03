@@ -17,7 +17,8 @@ fun OtpScreen(
     email: String,
     onVerify: (String) -> Unit,
     onResend: () -> Unit,
-    canResend: Boolean
+    canResend: Boolean,
+    canVerify: Boolean          // 👈 NEW
 ) {
 
     var otp by rememberSaveable { mutableStateOf("") }
@@ -69,7 +70,7 @@ fun OtpScreen(
 
             Button(
                 onClick = { onVerify(otp) },
-                enabled = !isExpired
+                enabled = !isExpired && canVerify   // 👈 DISABLE AFTER ATTEMPTS END
             ) {
                 Text("Verify OTP")
             }
