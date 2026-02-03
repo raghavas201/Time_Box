@@ -148,28 +148,3 @@ Key concepts used:
 7. Observe session timer
 8. Click **Logout** to return to login screen
 ---
-
-## ✅ What I Used GPT For vs What I Implemented Myself
-
-### 🧠 Work Assisted by GPT
-
-I used GPT for guidance in the following areas:
-- Initial project structure suggestions  
-- Best practices for Jetpack Compose UI layout  
-- Ideas for countdown timer implementation  
-- Formatting and structuring of this README file  
-- Suggestions for improving code clarity and readability  
-
-### 💻 Work Implemented by Me
-
-I personally designed and implemented:
-- The core OTP generation and validation logic  
-- The attempt tracking and expiry mechanism  
-- The resend OTP flow with cooldown  
-- The ViewModel state management using StateFlow  
-- The MVVM architecture and separation of concerns  
-- The UI behavior (disabling buttons on expiry/attempt exhaustion)  
-- The session timer logic that survives recompositions  
-- Integration of Timber logging into the authentication flow  
-
-GPT was used as a learning and debugging aid, but the core logic, design decisions, and final implementation were done by me.
